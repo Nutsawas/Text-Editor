@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Editor — แบบ Notion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body style="margin:0;min-height:100vh;background:#252525;color:#e3e2e0;">
+  <div class="app" style="min-height:100vh;display:flex;flex-direction:column;">
+    <main class="editor-container" style="flex:1;overflow:auto;padding:48px 0;">
+      <div class="editor-toolbar">
+        <input type="file" id="upload-markdown-input" accept=".md,.markdown,.txt" class="upload-markdown-input" title="อัปโหลดไฟล์ Markdown">
+        <button type="button" id="upload-markdown-btn" class="save-markdown-btn" title="อัปโหลดไฟล์ Markdown">Upload</button>
+        <button type="button" id="save-markdown-btn" class="save-markdown-btn" title="บันทึกทั้งหมดเป็นไฟล์ Markdown">Save</button>
+        <button type="button" id="lock-content-btn" class="save-markdown-btn" title="ล็อกเนื้อหา (อ่านอย่างเดียว)">Lock</button>
+      </div>
+      <div class="editor-page" style="max-width:900px;margin:0 auto;padding:0 64px;">
+        <div id="blocks" class="blocks">
+          <div class="block" data-type="paragraph" data-id="1">
+            <div class="block-actions">
+              <button type="button" class="block-add" title="เพิ่มบรรทัด">+</button>
+              <span class="block-handle" contenteditable="false" title="ลากเพื่อย้าย • คลิกเปิดเมนู">⋮⋮</span>
+            </div>
+            <div class="block-content" contenteditable="true" data-placeholder="กด / สำหรับคำสั่ง"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Block Action Menu (กด ⋮⋮ แล้วกางเมนู) -->
+    <div id="block-menu" class="block-menu hidden">
+      <div class="block-menu-header">
+        <span class="block-menu-type" id="block-menu-type">ข้อความ</span>
+      </div>
+      <div class="block-menu-item block-menu-submenu-trigger" data-action="turn-into">
+        <span class="material-symbols-outlined block-menu-icon">transform</span> เปลี่ยนเป็น <span class="material-symbols-outlined block-menu-arrow">chevron_right</span>
+      </div>
+      <div class="block-menu-item block-menu-submenu-trigger" data-action="color">
+        <span class="material-symbols-outlined block-menu-icon">palette</span> สี <span class="material-symbols-outlined block-menu-arrow">chevron_right</span>
+      </div>
+      <div class="block-menu-colors hidden">
+        <div class="block-menu-colors-title">สีข้อความ</div>
+        <div class="block-menu-colors-row" data-kind="text">
+          <button type="button" class="block-menu-color" data-color="default" data-kind="text" title="ค่าเริ่มต้น"><span class="color-swatch text-default">A</span> ค่าเริ่มต้น</button>
+          <button type="button" class="block-menu-color" data-color="gray" data-kind="text"><span class="color-swatch text-gray">A</span> เทา</button>
+          <button type="button" class="block-menu-color" data-color="brown" data-kind="text"><span class="color-swatch text-brown">A</span> น้ำตาล</button>
+          <button type="button" class="block-menu-color" data-color="orange" data-kind="text"><span class="color-swatch text-orange">A</span> ส้ม</button>
+          <button type="button" class="block-menu-color" data-color="yellow" data-kind="text"><span class="color-swatch text-yellow">A</span> เหลือง</button>
+          <button type="button" class="block-menu-color" data-color="green" data-kind="text"><span class="color-swatch text-green">A</span> เขียว</button>
+          <button type="button" class="block-menu-color" data-color="blue" data-kind="text"><span class="color-swatch text-blue">A</span> น้ำเงิน</button>
+          <button type="button" class="block-menu-color" data-color="purple" data-kind="text"><span class="color-swatch text-purple">A</span> ม่วง</button>
+          <button type="button" class="block-menu-color" data-color="pink" data-kind="text"><span class="color-swatch text-pink">A</span> ชมพู</button>
+          <button type="button" class="block-menu-color" data-color="red" data-kind="text"><span class="color-swatch text-red">A</span> แดง</button>
+        </div>
+        <div class="block-menu-colors-title">สีพื้นหลัง</div>
+        <div class="block-menu-colors-row" data-kind="bg">
+          <button type="button" class="block-menu-color" data-color="default" data-kind="bg" title="ค่าเริ่มต้น"><span class="color-swatch bg-default">A</span> ค่าเริ่มต้น</button>
+          <button type="button" class="block-menu-color" data-color="gray" data-kind="bg"><span class="color-swatch bg-gray">A</span> เทา</button>
+          <button type="button" class="block-menu-color" data-color="brown" data-kind="bg"><span class="color-swatch bg-brown">A</span> น้ำตาล</button>
+          <button type="button" class="block-menu-color" data-color="orange" data-kind="bg"><span class="color-swatch bg-orange">A</span> ส้ม</button>
+          <button type="button" class="block-menu-color" data-color="yellow" data-kind="bg"><span class="color-swatch bg-yellow">A</span> เหลือง</button>
+          <button type="button" class="block-menu-color" data-color="green" data-kind="bg"><span class="color-swatch bg-green">A</span> เขียว</button>
+          <button type="button" class="block-menu-color" data-color="blue" data-kind="bg"><span class="color-swatch bg-blue">A</span> น้ำเงิน</button>
+          <button type="button" class="block-menu-color" data-color="purple" data-kind="bg"><span class="color-swatch bg-purple">A</span> ม่วง</button>
+          <button type="button" class="block-menu-color" data-color="pink" data-kind="bg"><span class="color-swatch bg-pink">A</span> ชมพู</button>
+          <button type="button" class="block-menu-color" data-color="red" data-kind="bg"><span class="color-swatch bg-red">A</span> แดง</button>
+        </div>
+      </div>
+      <div class="block-menu-turn-into hidden">
+        <button type="button" class="block-menu-item small" data-type="h1">Heading 1</button>
+        <button type="button" class="block-menu-item small" data-type="h2">Heading 2</button>
+        <button type="button" class="block-menu-item small" data-type="h3">Heading 3</button>
+        <button type="button" class="block-menu-item small" data-type="paragraph">Paragraph</button>
+        <button type="button" class="block-menu-item small" data-type="ul">Bullet list</button>
+        <button type="button" class="block-menu-item small" data-type="ol">Numbered list</button>
+        <button type="button" class="block-menu-item small" data-type="code">Code</button>
+        <button type="button" class="block-menu-item small" data-type="table">Table</button>
+        <button type="button" class="block-menu-item small" data-type="quote">Quote</button>
+        <button type="button" class="block-menu-item small" data-type="checkbox">Checklist</button>
+        <button type="button" class="block-menu-item small" data-type="callout">Callout</button>
+      </div>
+      <button type="button" class="block-menu-item" data-action="duplicate">
+        <span class="material-symbols-outlined block-menu-icon">file_copy</span> Duplicate
+      </button>
+      <button type="button" class="block-menu-item" data-action="copy">
+        <span class="material-symbols-outlined block-menu-icon">content_copy</span> คัดลอก
+      </button>
+      <button type="button" class="block-menu-item" data-action="delete">
+        <span class="material-symbols-outlined block-menu-icon">delete</span> ลบ
+      </button>
+    </div>
+
+    <!-- Selection Toolbar (โผล่เมื่อเลือกข้อความบางส่วน) -->
+    <div id="selection-toolbar" class="selection-toolbar hidden">
+      <button type="button" class="selection-toolbar-btn" data-cmd="bold" title="ตัวหนา">B</button>
+      <button type="button" class="selection-toolbar-btn" data-cmd="italic" title="ตัวเอียง">I</button>
+      <button type="button" class="selection-toolbar-btn" data-cmd="underline" title="ขีดเส้นใต้">U</button>
+      <button type="button" class="selection-toolbar-btn" data-cmd="strikeThrough" title="ขีดฆ่า">S</button>
+      <span class="selection-toolbar-divider"></span>
+      <button type="button" class="selection-toolbar-btn" data-cmd="createLink" title="ลิงก์" id="selection-toolbar-link"><span class="material-symbols-outlined selection-toolbar-icon">link</span></button>
+      <button type="button" class="selection-toolbar-btn" data-cmd="code" title="โค้ด">&lt;/&gt;</button>
+      <span class="selection-toolbar-divider"></span>
+      <div class="selection-toolbar-color-wrap">
+        <button type="button" class="selection-toolbar-btn" id="selection-toolbar-color" title="สีข้อความ">A</button>
+        <div id="selection-toolbar-color-picker" class="selection-toolbar-color-picker hidden">
+          <button type="button" class="selection-color-btn" data-color="#e3e2e0" style="background:#e3e2e0;color:#1e1e1e">A</button>
+          <button type="button" class="selection-color-btn" data-color="#9b9a97" style="background:#9b9a97">A</button>
+          <button type="button" class="selection-color-btn" data-color="#c4a574" style="background:#c4a574">A</button>
+          <button type="button" class="selection-color-btn" data-color="#e07c12" style="background:#e07c12">A</button>
+          <button type="button" class="selection-color-btn" data-color="#c9a227" style="background:#c9a227">A</button>
+          <button type="button" class="selection-color-btn" data-color="#4dab9a" style="background:#4dab9a">A</button>
+          <button type="button" class="selection-color-btn" data-color="#5298c4" style="background:#5298c4">A</button>
+          <button type="button" class="selection-color-btn" data-color="#a371c4" style="background:#a371c4">A</button>
+          <button type="button" class="selection-color-btn" data-color="#cf6ea0" style="background:#cf6ea0">A</button>
+          <button type="button" class="selection-color-btn" data-color="#e03e3e" style="background:#e03e3e">A</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slash Command Menu -->
+    <div id="slash-menu" class="slash-menu hidden">
+      <div class="slash-menu-title">คำสั่ง</div>
+      <button type="button" class="slash-item" data-type="h1"><span class="material-symbols-outlined slash-icon">title</span> Heading 1</button>
+      <button type="button" class="slash-item" data-type="h2"><span class="material-symbols-outlined slash-icon">text_fields</span> Heading 2</button>
+      <button type="button" class="slash-item" data-type="h3"><span class="material-symbols-outlined slash-icon">format_size</span> Heading 3</button>
+      <button type="button" class="slash-item" data-type="paragraph"><span class="material-symbols-outlined slash-icon">article</span> Paragraph</button>
+      <button type="button" class="slash-item" data-type="ul"><span class="material-symbols-outlined slash-icon">format_list_bulleted</span> Bullet list</button>
+      <button type="button" class="slash-item" data-type="ol"><span class="material-symbols-outlined slash-icon">format_list_numbered</span> Numbered list</button>
+      <button type="button" class="slash-item" data-type="code"><span class="material-symbols-outlined slash-icon">integration_instructions</span> Code</button>
+      <button type="button" class="slash-item" data-type="table"><span class="material-symbols-outlined slash-icon">table_chart</span> Table</button>
+      <button type="button" class="slash-item" data-type="quote"><span class="material-symbols-outlined slash-icon">format_quote</span> Quote</button>
+      <button type="button" class="slash-item" data-type="checkbox"><span class="material-symbols-outlined slash-icon">checklist</span> Checklist</button>
+      <button type="button" class="slash-item" data-type="callout"><span class="material-symbols-outlined slash-icon">format_quote</span> Callout</button>
+      <button type="button" class="slash-item" data-type="divider"><span class="material-symbols-outlined slash-icon">horizontal_rule</span> Divider</button>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
